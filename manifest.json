@@ -1,0 +1,19 @@
+{
+  "manifest_version": 2,
+
+  "name": "27 shades",
+  "description": "27 shades of your web page colors",
+  "version": "1.0",
+  
+  "content_scripts": [
+    {
+      "matches": ["http://*/*"],     
+      "js": ["contentscript.js"]
+
+    }
+  ],
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  }
+}
