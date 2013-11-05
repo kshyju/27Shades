@@ -12,102 +12,85 @@ function JColor(colorString)
   this.Green=0;
   this.Blue=0;
   this.Alpha=255;
-  this.Load();
+  this.load();
 }
 JColor.prototype.toRGB=function(){
- var result= "RGB("+this.Red+","+this.Green+","+this.Blue+")";
-  return result;
-  };
+  return"RGB("+this.Red+","+this.Green+","+this.Blue+")";  
+};
 JColor.prototype.toHex=function(){
-
      var redHex=this.Red.toString(16);
      var greenHex=this.Green.toString(16);
      var blueHex=this.Blue.toString(16);
-
      var res= "#"+(redHex.length==1?"0"+redHex:redHex)+(greenHex.length==1?"0"+greenHex:greenHex)+(blueHex.length==1?"0"+blueHex:blueHex);
      return res.toUpperCase();
-}
+};
 JColor.prototype.getShade=function(shadeValue)
-{
-  //var shadeValue=20;
+{ 
   var newRed= GetColorShade(this.Red,shadeValue);
   var newGreen= GetColorShade(this.Green,shadeValue);
   var newBlue= GetColorShade(this.Blue,shadeValue);
-  var result= "RGB("+newRed+","+newGreen+","+newBlue+")";
-  return result;
-}
+  return "RGB("+newRed+","+newGreen+","+newBlue+")";  
+};
 
-JColor.prototype.Load =function(){  
-console.log("this.ColorString: "+this.ColorString.substr(0,4).toUpperCase());  
+JColor.prototype.load =function(){  
   
   if(this.ColorString.substr(0,4).toUpperCase()==="RGBA")
   {       
      var rgba= this.ColorString.substr(5,this.ColorString.length-6).toUpperCase();      
-     var rgbArray=rgba.split(",");     
-     if(rgbArray.length==4)
+     var rgbaArray=rgba.split(",");     
+     if(rgbaArray.length===4)
      {  
-
-        this.Red=parseInt(rgbArray[0]);
-        this.Green=parseInt(rgbArray[1]);
-        this.Blue=parseInt(rgbArray[2]);  
-        this.Alpha=parseInt(rgbArray[3]);  
-        console.log("this.Alpha :"+this.Alpha);
-        if(this.Alpha==0)
+        this.Red=parseInt(rgbaArray[0]);
+        this.Green=parseInt(rgbaArray[1]);
+        this.Blue=parseInt(rgbaArray[2]);  
+        this.Alpha=parseInt(rgbaArray[3]);         
+        if(this.Alpha===0)
         {
           //Alpha zero. Not sure what to do. So lets keep the color as white.
           this.Red=255;
           this.Green=255;
           this.Blue=255;
         }
-     }
-     return rgb ;
+     }     
   }
   else if(this.ColorString.substr(0,3).toUpperCase()==="RGB")
   {   
-     var rgb= this.ColorString.substr(4,this.ColorString.length-5).toUpperCase();  
-    
+     var rgb= this.ColorString.substr(4,this.ColorString.length-5).toUpperCase();      
      var rgbArray=rgb.split(",");
      if(rgbArray.length===3)
      {     
         this.Red=parseInt(rgbArray[0]);
         this.Green=parseInt(rgbArray[1]);
         this.Blue=parseInt(rgbArray[2]);         
-     }
-     return rgb ;
+     }    
   }
   else if(this.ColorString.substr(0,1).toUpperCase()==="#")
   { 
-    var rgbRepresentation=hexToRgb(this.ColorString);
-    //console.log(typeof rgbRepresentation);
-    this.ColorString=rgbRepresentation;
-    //console.log("rgbRepresentation : "+rgbRepresentation.toString());
-    this.Load();
+    var rgbRepresentation=hexToRgb(this.ColorString);    
+    this.ColorString=rgbRepresentation;   
+    this.load();
   }
   else
   {
     var hex=colourNameToHex(this.ColorString);
-    this.ColorString=hex;
-   // console.log("1 rgbRepresentation : "+hex);
-    this.Load();
+    this.ColorString=hex;   
+    this.load();
   }   
 };
 
 function GetColorShade(currentValue,percentage)
 {
-  var newValue=currentValue*percentage/100;
- // console.log(newValue);
+  var newValue=currentValue*percentage/100; 
   return Math.round((currentValue-newValue));
 }
 function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);  
     var rgbResult= result ? {
         r: parseInt(result[1], 16),
         g: parseInt(result[2], 16),
         b: parseInt(result[3], 16)
     } : null;
-    return ("RGB("+rgbResult.r+","+rgbResult.g+","+rgbResult.b+")");
-   
+    return ("RGB("+rgbResult.r+","+rgbResult.g+","+rgbResult.b+")");   
 }
 
 function colourNameToHex(colour)
@@ -142,54 +125,53 @@ function colourNameToHex(colour)
 
     return false;
 }
+
 var arr=[]; 
-  var itemCounter=0;
-  function LoadOriginalStyles()
-  {
-    var allNodes=document.body;
-    var bodycss = allNodes.style;// window.getComputedStyle(allNodes,null);        
-    if(bodycss!=null)
+var itemCounter=0;
+function LoadOriginalStyles()
+{
+var allNodes=document.body;
+var bodycss = allNodes.style;       
+if(bodycss!=null)
+{
+  if(bodycss.backgroundColor!="")
+  {  
+    arr.push( { "index":itemCounter,"bg":bodycss.backgroundColor});
+    itemCounter++;
+  }
+}
+
+for(var i=0;i<allNodes.childNodes.length;i++)
+{
+var curNode=allNodes.childNodes[i];
+CheckChildItem(curNode);
+}
+return arr;
+}
+ 
+function CheckChildItem(currentNode)
+{ 
+  if(IsValidElement(currentNode.localName))
+  {            
+    var css = window.getComputedStyle(currentNode,null);        
+    if(css!=null)
     {
-       if(bodycss.backgroundColor!="")// && bodycss.backgroundColor!="rgba(0, 0, 0, 0)")
-       {  
-        arr.push( { "index":itemCounter,"bg":bodycss.backgroundColor});
+      if(css.backgroundColor!="")
+      {           
+        arr.push( { "index":itemCounter,"bg":css.backgroundColor});
         itemCounter++;
       }
-     }
-
-    for(var i=0;i<allNodes.childNodes.length;i++)
-    {
-      var curNode=allNodes.childNodes[i];
-      CheckChildItem(curNode);
-    }
-    return arr;
   }
- 
-    function CheckChildItem(currentNode)
+    if(currentNode.childNodes.length>0)
+    {         
+      for(var i=0;i<currentNode.childNodes.length;i++)
     {
-     
-      if(IsValidElement(currentNode.localName))
-      {
-                
-        var css = window.getComputedStyle(currentNode,null);        
-        if(css!=null)
-        {
-          if(css.backgroundColor!="")// && css.backgroundColor!="rgba(0, 0, 0, 0)")
-          {           
-            arr.push( { "index":itemCounter,"bg":css.backgroundColor});
-            itemCounter++;
-          }
-      }
-        if(currentNode.childNodes.length>0)
-        {         
-          for(var i=0;i<currentNode.childNodes.length;i++)
-        {
-          var currentChild=currentNode.childNodes[i];         
-          CheckChildItem(currentChild);
-        }
-        }
-      }
+      var currentChild=currentNode.childNodes[i];         
+      CheckChildItem(currentChild);
     }
+    }
+  }
+}
 
   function IsValidElement(localName)
   {
