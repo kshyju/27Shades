@@ -1,10 +1,10 @@
 
 /**************************************
-  Author  : Shyju
+  Author  : Shyju Krishnankutty
   Twitter : @kshyju
 **************************************/
 document.addEventListener("DOMContentLoaded",function(e){
-	document.getElementById("shadeSlider").addEventListener("click",function(){
+	document.getElementById("shadeSlider").addEventListener("change",function(){
 		var val=document.getElementById("shadeSlider").value;	
 		document.getElementById("spnShade").innerHTML=val/2;		
 
