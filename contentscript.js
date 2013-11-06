@@ -3,7 +3,7 @@
   Twitter : @kshyju
 **************************************/
 function JColor(colorString)
-{
+{ 
   this.ColorString=colorString;
   this.Red=0;
   this.Green=0;
@@ -131,9 +131,14 @@ function LoadOriginalStyles()
   var bodycss = allNodes.style;       
   if(bodycss!=null)
   {
-    if(bodycss.backgroundColor!="")
+    if((bodycss.backgroundColor!="")&& (bodycss.backgroundColor!="initial")&& (bodycss.backgroundColor!="rgba(0, 0, 0, 0)"))
     {  
       existingColorArr.push( { "index":itemCounter,"bg":bodycss.backgroundColor});
+      itemCounter++;
+    }
+    if((bodycss.color!="")&& (bodycss.color!="initial")&& (bodycss.color!="rgba(0, 0, 0, 0)"))
+    {  
+      existingColorArr.push( { "index":itemCounter,"bg":bodycss.color});
       itemCounter++;
     }
   }
@@ -152,9 +157,14 @@ function CheckChildItem(currentNode)
     var css = window.getComputedStyle(currentNode,null);        
     if(css!=null)
     {
-      if(css.backgroundColor!="")
+      if((css.backgroundColor!="")&& (css.backgroundColor!="initial") && (css.backgroundColor!="rgba(0, 0, 0, 0)"))
       {           
         existingColorArr.push( { "index":itemCounter,"bg":css.backgroundColor});
+        itemCounter++;
+      }
+      if((css.color!="")&& (css.color!="initial") && (css.color!="rgba(0, 0, 0, 0)"))
+      {           
+        existingColorArr.push( { "index":itemCounter,"bg":css.color});
         itemCounter++;
       }
     }
@@ -190,12 +200,19 @@ function PaintChildItem(currentNode,shadeValue)
       if(typeof existingColorArr[setCounter]!="undefined")
       {          
         var existingColor=existingColorArr[setCounter].bg;  
-        if(existingColor!="") 
+        if((existingColor!="") && (existingColor!="initial")&& (existingColor!="rgba(0, 0, 0, 0)"))
         { 
           var col=new JColor(existingColor);
           currentNode.style.backgroundColor=col.getShade(shadeValue);
           setCounter++;            
         }
+        var existingForeColor=existingColorArr[setCounter].bg;
+        if((existingForeColor!="") && (existingForeColor!="initial")&& (existingForeColor!="rgba(0, 0, 0, 0)"))
+        { 
+          var col=new JColor(existingForeColor);
+          currentNode.style.color=col.getShade(shadeValue);
+          setCounter++;            
+        }  
       }
     }
     if(currentNode.childNodes.length>0)
@@ -216,10 +233,17 @@ function UpdateStyles(shadeValue)
   if(bodycss!=null)
   {
     var existingColor=existingColorArr[setCounter].bg;
-    if(existingColor!="")// && existingColor!="rgba(0, 0, 0, 0)")
+    if((existingColor!="") && (existingColor!="initial")&& (existingColor!="rgba(0, 0, 0, 0)"))
     {           
       var col=new JColor(existingColor);  
       document.body.style.backgroundColor=col.getShade(shadeValue);
+      setCounter++; 
+    }
+    var existingForeColor=existingColorArr[setCounter].bg;
+    if((existingForeColor!="") && (existingForeColor!="initial")&& (existingForeColor!="rgba(0, 0, 0, 0)"))
+    {           
+      var col=new JColor(existingForeColor);  
+      document.body.style.color=col.getShade(shadeValue);
       setCounter++; 
     }
   }
@@ -233,7 +257,6 @@ function UpdateStyles(shadeValue)
 LoadOriginalStyles();
 
 chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
-    setCounter=0;
-    console.log("got");
-  	 UpdateStyles(request.greeting);
+    setCounter=0;    
+  	UpdateStyles(request.greeting);
 });
