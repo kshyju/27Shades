@@ -1,28 +1,25 @@
 /**************************************
-  Author  : Shyju
+  Author  : Shyju Krishnankutty
   Twitter : @kshyju
 **************************************/
-
-var styleSheetList = document.styleSheets ;
-
 function JColor(colorString)
 {
   this.ColorString=colorString;
   this.Red=0;
   this.Green=0;
   this.Blue=0;
-  this.Alpha=255;
+  this.Alpha=255; //full visibility
   this.load();
 }
 JColor.prototype.toRGB=function(){
   return"RGB("+this.Red+","+this.Green+","+this.Blue+")";  
 };
 JColor.prototype.toHex=function(){
-     var redHex=this.Red.toString(16);
-     var greenHex=this.Green.toString(16);
-     var blueHex=this.Blue.toString(16);
-     var res= "#"+(redHex.length==1?"0"+redHex:redHex)+(greenHex.length==1?"0"+greenHex:greenHex)+(blueHex.length==1?"0"+blueHex:blueHex);
-     return res.toUpperCase();
+   var redHex=this.Red.toString(16);
+   var greenHex=this.Green.toString(16);
+   var blueHex=this.Blue.toString(16);
+   var res= "#"+(redHex.length==1?"0"+redHex:redHex)+(greenHex.length==1?"0"+greenHex:greenHex)+(blueHex.length==1?"0"+blueHex:blueHex);
+   return res.toUpperCase();
 };
 JColor.prototype.getShade=function(shadeValue)
 { 
@@ -32,7 +29,7 @@ JColor.prototype.getShade=function(shadeValue)
   return "RGB("+newRed+","+newGreen+","+newBlue+")";  
 };
 
-JColor.prototype.load =function(){  
+JColor.prototype.load =function(){ 
   
   if(this.ColorString.substr(0,4).toUpperCase()==="RGBA")
   {       
@@ -126,27 +123,26 @@ function colourNameToHex(colour)
     return false;
 }
 
-var arr=[]; 
+var existingColorArr=[];
 var itemCounter=0;
 function LoadOriginalStyles()
 {
-var allNodes=document.body;
-var bodycss = allNodes.style;       
-if(bodycss!=null)
-{
-  if(bodycss.backgroundColor!="")
-  {  
-    arr.push( { "index":itemCounter,"bg":bodycss.backgroundColor});
-    itemCounter++;
+  var allNodes=document.body;
+  var bodycss = allNodes.style;       
+  if(bodycss!=null)
+  {
+    if(bodycss.backgroundColor!="")
+    {  
+      existingColorArr.push( { "index":itemCounter,"bg":bodycss.backgroundColor});
+      itemCounter++;
+    }
   }
-}
-
-for(var i=0;i<allNodes.childNodes.length;i++)
-{
-var curNode=allNodes.childNodes[i];
-CheckChildItem(curNode);
-}
-return arr;
+  for(var i=0;i<allNodes.childNodes.length;i++)
+  {
+    var curNode=allNodes.childNodes[i];
+    CheckChildItem(curNode);
+  }
+  return existingColorArr;
 }
  
 function CheckChildItem(currentNode)
@@ -158,107 +154,84 @@ function CheckChildItem(currentNode)
     {
       if(css.backgroundColor!="")
       {           
-        arr.push( { "index":itemCounter,"bg":css.backgroundColor});
+        existingColorArr.push( { "index":itemCounter,"bg":css.backgroundColor});
         itemCounter++;
       }
-  }
+    }
     if(currentNode.childNodes.length>0)
     {         
       for(var i=0;i<currentNode.childNodes.length;i++)
-    {
-      var currentChild=currentNode.childNodes[i];         
-      CheckChildItem(currentChild);
-    }
+      {
+        var currentChild=currentNode.childNodes[i];         
+        CheckChildItem(currentChild);
+      }
     }
   }
 }
 
-  function IsValidElement(localName)
-  {
-     if(
-        localName==='div' ||localName==='span'||localName==='table'
-        ||localName==='h1'||localName==='form'||localName==='p'||localName==='pre'
-        ||localName==='nav'||localName==='ul'||   localName==='button'
-        ||localName==='a'||localName==='header' || localName==='th'||localName==='h3'
-         ||localName==='section'||localName==='code'
-       || localName==='h2'|localName==='h4')
-     {
-       return true;
-     }
-     return false;
-  }
-
-  function PaintChildItem(currentNode,shadeValue)
-  {
-      
-      if(IsValidElement(currentNode.localName))
-      {
-                
-        var css = window.getComputedStyle(currentNode,null);        
-        if(css!=null)
-        {
-          if(typeof arr[setCounter]!="undefined")
-          {
-          
-           console.log("setCounter : "+setCounter)
-           var existingColor=arr[setCounter].bg;  
-           if(existingColor!="") //&& existingColor!="rgba(0, 0, 0, 0)")
-           {     
-            console.log(existingColor);
-            var col=new JColor(existingColor);
-            currentNode.style.backgroundColor=col.getShade(shadeValue);
-            setCounter++;
-            //console.log("old color: "+col.toRGB()+" , new color: "+col.getShade(shadeValue));
-          }
-         }
-      }
-        if(currentNode.childNodes.length>0)
-        {         
-          for(var i=0;i<currentNode.childNodes.length;i++)
-        {
-          var currentChild=currentNode.childNodes[i];         
-          PaintChildItem(currentChild,shadeValue);
-        }
-        }
-      }
-    }
-    var setCounter=0;
-    function UpdateStyles(shadeValue)
-    {
-      console.log("going to update with"+shadeValue);
-      var allNodes=document.body;
-      var bodycss = window.getComputedStyle(allNodes,null);        
-      if(bodycss!=null)
-      {
-         console.log("body css is not null");
-         console.log(arr);
-          var existingColor=arr[setCounter].bg;
-          if(existingColor!="")// && existingColor!="rgba(0, 0, 0, 0)")
-          {
-            console.log("setCounter :"+setCounter+" , existingColor: "+existingColor);
-           var col=new JColor(existingColor);  
-            document.body.style.backgroundColor=col.getShade(shadeValue);
-            setCounter++;
-          
-            console.log("old color: "+col.toRGB()+" , new color: "+col.getShade(shadeValue));
-          }
-
-      }
-      for(var i=0;i<allNodes.childNodes.length;i++)
-    {
-      var curNode=allNodes.childNodes[i];
-      PaintChildItem(curNode,shadeValue);
-    }
-    }
-function DoSomething(message)
+function IsValidElement(localName)
 {
-	console.log("Doing something now "+message);
-	document.body.style.backgroundColor=message;
+   if(localName==='div' ||localName==='span'||localName==='table'||localName==='h1'||localName==='form'||localName==='p'||localName==='pre'
+      ||localName==='nav'||localName==='ul'||   localName==='button'||localName==='a'||localName==='header' || localName==='th'||localName==='h3'
+       ||localName==='section'||localName==='code'|| localName==='h2'|localName==='h4')
+   {
+     return true;
+   }
+   return false;
 }
-console.log("loading,....,");
-var orgStyles=LoadOriginalStyles();
-console.log("stored items");
-console.log(orgStyles);
+
+function PaintChildItem(currentNode,shadeValue)
+{
+  if(IsValidElement(currentNode.localName))
+  {
+    var css = window.getComputedStyle(currentNode,null);        
+    if(css!=null)
+    {
+      if(typeof existingColorArr[setCounter]!="undefined")
+      {          
+        var existingColor=existingColorArr[setCounter].bg;  
+        if(existingColor!="") 
+        { 
+          var col=new JColor(existingColor);
+          currentNode.style.backgroundColor=col.getShade(shadeValue);
+          setCounter++;            
+        }
+      }
+    }
+    if(currentNode.childNodes.length>0)
+    {         
+      for(var i=0;i<currentNode.childNodes.length;i++)
+      {
+        var currentChild=currentNode.childNodes[i];         
+        PaintChildItem(currentChild,shadeValue);
+      }
+    }
+  }
+}
+var setCounter=0;
+function UpdateStyles(shadeValue)
+{      
+  var allNodes=document.body;
+  var bodycss = window.getComputedStyle(allNodes,null);        
+  if(bodycss!=null)
+  {
+    var existingColor=existingColorArr[setCounter].bg;
+    if(existingColor!="")// && existingColor!="rgba(0, 0, 0, 0)")
+    {           
+      var col=new JColor(existingColor);  
+      document.body.style.backgroundColor=col.getShade(shadeValue);
+      setCounter++; 
+    }
+  }
+  for(var i=0;i<allNodes.childNodes.length;i++)
+  {
+    var curNode=allNodes.childNodes[i];
+    PaintChildItem(curNode,shadeValue);
+  }
+}
+
+LoadOriginalStyles();
+
 chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
     setCounter=0;
     console.log("got");
